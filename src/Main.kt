@@ -1,8 +1,8 @@
 package com.example.kotlincalculator
 
-class Calculator() {
+class Calculator {
 
-    fun execute(operation: String, n1: Double, n2: Double) : Double {
+    fun execute(operation: String, n1: Double, n2: Double) : Double? {
         return when(operation) {
             "1" -> add(n1, n2)
             "2" -> subtract(n1, n2)
@@ -24,20 +24,17 @@ class Calculator() {
         return n1 * n2
     }
 
-    private fun divide(n1: Double, n2: Double): Double {
+    private fun divide(n1: Double, n2: Double): Double? {
+        if(n2 == 0.0) return null
         return n1 / n2
     }
 }
 
-class InputChecker() {
+class InputChecker {
     fun isOperation(input: String?) : Boolean {
-        if(input == null) return false
-
-        if(input.matches(Regex("[1-4]"))) {
-            return true
-        } else {
-            return false
-        }
+        return if(input == null) false
+        else if(input.matches(Regex("[1-4]"))) true
+        else false
     }
 
     fun isNumber(input: String?) : Boolean {
@@ -54,20 +51,27 @@ class InputChecker() {
     }
 }
 
+object ConsoleColors {
+    const val RESET = "\u001B[0m"
+    const val RED = "\u001B[31m"
+    const val GREEN = "\u001B[32m"
+}
+
+const val INVALID_INPUT = "${ConsoleColors.RED}Invalid input${ConsoleColors.RESET}"
+
 
 
 fun main() {
     val calculator = Calculator()
     val inputChecker = InputChecker()
-    var input: String? = null
+    var input: String?
     var operation: String? = null
     var firstNumber: Double? = null
     var secondNumber: Double? = null
-    var result: Double? = null
+    var result: Double?
     var isValid = false
-    var running = true
 
-    while(running) {
+    while(true) {
         while(!isValid) {
             println(
                 "Select the operation:\n" +
@@ -77,7 +81,7 @@ fun main() {
                         "\n4) Divide" +
                         "\nq) Quit"
             )
-            input = readLine()
+            input = readln()
             if(inputChecker.isQuitCommand(input)) {
                 return
             }
@@ -85,42 +89,46 @@ fun main() {
                 operation = input
                 isValid = true
             } else {
-                println("Invalid operation")
+                println(INVALID_INPUT)
             }
         }
 
         isValid = false
         while (!isValid) {
             println("Type the first number or type 'q' to exit:")
-            input = readLine()
+            input = readln()
             if(inputChecker.isQuitCommand(input)) {
                 return
             }
             if (inputChecker.isNumber(input)) {
-                firstNumber = input!!.toDouble()
+                firstNumber = input.toDouble()
                 isValid = true
             } else {
-                println("Invalid number")
+                println(INVALID_INPUT)
             }
         }
 
         isValid = false
         while (!isValid) {
             println("Type the second number or type 'q' to exit:")
-            input = readLine()
+            input = readln()
             if(inputChecker.isQuitCommand(input)) {
                 return
             }
             if (inputChecker.isNumber(input)) {
-                secondNumber = input!!.toDouble()
+                secondNumber = input.toDouble()
                 isValid = true
             } else {
-                println("Invalid number")
+                println(INVALID_INPUT)
             }
         }
         isValid = false
         result = calculator.execute(operation!!, firstNumber!!, secondNumber!!)
-        println("$result")
+        if(result == null) {
+            println("${ConsoleColors.RED}Invalid operation: division by zero.${ConsoleColors.RESET}")
+        } else {
+            println("${ConsoleColors.GREEN}Result: $result${ConsoleColors.RESET}")
+        }
     }
 
 
